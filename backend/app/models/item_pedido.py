@@ -1,0 +1,36 @@
+from typing import TYPE_CHECKING
+
+from sqlalchemy import String, Float, Integer, ForeignKey, PrimaryKeyConstraint
+from sqlalchemy.orm import Mapped, mapped_column, relationship
+
+from app.database import Base
+
+if TYPE_CHECKING:
+    from app.models.produto import Produto
+    from app.models.pedido import Pedido
+    from app.models.vendedor import Vendedor
+
+
+class ItemPedido(Base):
+    __tablename__ = "itens_pedidos"
+
+    id_pedido: Mapped[str] = mapped_column(
+        String(32), ForeignKey("pedidos.id_pedido"), nullable=False
+    )
+    id_item: Mapped[int] = mapped_column(Integer, nullable=False)
+    id_produto: Mapped[str] = mapped_column(
+        String(32), ForeignKey("produtos.id_produto"), nullable=False
+    )
+    id_vendedor: Mapped[str] = mapped_column(
+        String(32), ForeignKey("vendedores.id_vendedor"), nullable=False
+    )
+    preco_BRL: Mapped[float] = mapped_column(Float)
+    preco_frete: Mapped[float] = mapped_column(Float)
+
+    __table_args__ = (
+        PrimaryKeyConstraint("id_pedido", "id_item"),
+    )
+
+    produto: Mapped["Produto"] = relationship(back_populates="itens")
+    pedido: Mapped["Pedido"] = relationship(back_populates="itens")
+    vendedor: Mapped["Vendedor"] = relationship()
